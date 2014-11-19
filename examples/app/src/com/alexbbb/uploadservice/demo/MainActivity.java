@@ -52,7 +52,7 @@ public class MainActivity extends ActionBarActivity {
         }
 
         @Override
-        public void onCompleted(String uploadId, int serverResponseCode, String serverResponseMessage) {
+        public void onCompleted(String uploadId, int serverResponseCode, String serverResponseMessage, String serverResponseContent) {
             progressBar.setProgress(0);
 
             String message = "Upload with ID " + uploadId + " is completed: " + serverResponseCode + ", "
