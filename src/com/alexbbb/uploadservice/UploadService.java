@@ -1,8 +1,10 @@
 package com.alexbbb.uploadservice;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -57,6 +59,7 @@ public class UploadService extends IntentService {
     public static final String ERROR_EXCEPTION = "errorException";
     public static final String SERVER_RESPONSE_CODE = "serverResponseCode";
     public static final String SERVER_RESPONSE_MESSAGE = "serverResponseMessage";
+    public static final String SERVER_RESPONSE_CONTENT = "serverResponseContent";
 
     private NotificationManager notificationManager;
     private Builder notification;
@@ -154,6 +157,7 @@ public class UploadService extends IntentService {
 
         HttpURLConnection conn = null;
         OutputStream requestStream = null;
+        InputStream readStream = null;
 
         try {
             conn = getMultipartHttpURLConnection(url, method, boundary);
@@ -169,8 +173,17 @@ public class UploadService extends IntentService {
             requestStream.write(trailer, 0, trailer.length);
             final int serverResponseCode = conn.getResponseCode();
             final String serverResponseMessage = conn.getResponseMessage();
+            readStream = conn.getInputStream();
+            
+            BufferedReader reader = new BufferedReader(new InputStreamReader(readStream));
+            StringBuffer buffer = new StringBuffer();
+            String data = null;
+            while ((data = reader.readLine()) != null) {
+                buffer.append(data);
+            }
+            String serverResponseContent = buffer.toString();
 
-            broadcastCompleted(uploadId, serverResponseCode, serverResponseMessage);
+            broadcastCompleted(uploadId, serverResponseCode, serverResponseMessage, serverResponseContent);
 
         } finally {
             closeOutputStream(requestStream);
@@ -326,7 +339,7 @@ public class UploadService extends IntentService {
         sendBroadcast(intent);
     }
 
-    private void broadcastCompleted(final String uploadId, final int responseCode, final String responseMessage) {
+    private void broadcastCompleted(final String uploadId, final int responseCode, final String responseMessage, final String responseContent) {
 
         final String filteredMessage;
         if (responseMessage == null) {
@@ -345,6 +358,7 @@ public class UploadService extends IntentService {
         intent.putExtra(STATUS, STATUS_COMPLETED);
         intent.putExtra(SERVER_RESPONSE_CODE, responseCode);
         intent.putExtra(SERVER_RESPONSE_MESSAGE, filteredMessage);
+        intent.putExtra(SERVER_RESPONSE_CONTENT, responseContent);
         sendBroadcast(intent);
     }
 

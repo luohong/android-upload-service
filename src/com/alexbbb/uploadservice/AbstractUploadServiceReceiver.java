@@ -36,7 +36,8 @@ public abstract class AbstractUploadServiceReceiver extends BroadcastReceiver {
                     case UploadService.STATUS_COMPLETED:
                         final int responseCode = intent.getIntExtra(UploadService.SERVER_RESPONSE_CODE, 0);
                         final String responseMsg = intent.getStringExtra(UploadService.SERVER_RESPONSE_MESSAGE);
-                        onCompleted(uploadId, responseCode, responseMsg);
+                        final String responseContent = intent.getStringExtra(UploadService.SERVER_RESPONSE_CONTENT);
+                        onCompleted(uploadId, responseCode, responseMsg, responseContent);
                         break;
 
                     case UploadService.STATUS_IN_PROGRESS:
@@ -96,5 +97,5 @@ public abstract class AbstractUploadServiceReceiver extends BroadcastReceiver {
      * @param serverResponseMessage string containing the response received from the server
      */
     public abstract void onCompleted(final String uploadId, final int serverResponseCode,
-                                     final String serverResponseMessage);
+                                     final String serverResponseMessage, final String responseContent);
 }
