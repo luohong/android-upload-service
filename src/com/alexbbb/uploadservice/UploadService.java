@@ -173,22 +173,29 @@ public class UploadService extends IntentService {
             requestStream.write(trailer, 0, trailer.length);
             final int serverResponseCode = conn.getResponseCode();
             final String serverResponseMessage = conn.getResponseMessage();
-            readStream = conn.getInputStream();
             
-            BufferedReader reader = new BufferedReader(new InputStreamReader(readStream));
-            StringBuffer buffer = new StringBuffer();
-            String data = null;
-            while ((data = reader.readLine()) != null) {
-                buffer.append(data);
-            }
-            String serverResponseContent = buffer.toString();
+            readStream = conn.getInputStream();
+            String serverResponseContent = readResponseContent(readStream);
 
             broadcastCompleted(uploadId, serverResponseCode, serverResponseMessage, serverResponseContent);
-
+        } catch(Exception e) {
+            e.printStackTrace();
         } finally {
+            closeInputStream(readStream);
             closeOutputStream(requestStream);
             closeConnection(conn);
         }
+    }
+
+    private String readResponseContent(InputStream readStream) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(readStream));
+        StringBuffer buffer = new StringBuffer();
+        String data = null;
+        while ((data = reader.readLine()) != null) {
+            buffer.append(data);
+        }
+        String serverResponseContent = buffer.toString();
+        return serverResponseContent;
     }
 
     private String getBoundary() {
@@ -215,10 +222,7 @@ public class UploadService extends IntentService {
         return builder.toString().getBytes("US-ASCII");
     }
 
-    private
-            HttpURLConnection
-            getMultipartHttpURLConnection(final String url, final String method, final String boundary)
-                                                                                                       throws IOException {
+    private HttpURLConnection getMultipartHttpURLConnection(final String url, final String method, final String boundary) throws IOException {
         final HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
 
         conn.setDoInput(true);
@@ -253,13 +257,8 @@ public class UploadService extends IntentService {
         }
     }
 
-    private
-            void
-            uploadFiles(final String uploadId, final OutputStream requestStream,
-                        final ArrayList<FileToUpload> filesToUpload, final byte[] boundaryBytes)
-                                                                                                throws UnsupportedEncodingException,
-                                                                                                IOException,
-                                                                                                FileNotFoundException {
+    private void uploadFiles(final String uploadId, final OutputStream requestStream,
+                        final ArrayList<FileToUpload> filesToUpload, final byte[] boundaryBytes) throws UnsupportedEncodingException, IOException, FileNotFoundException {
 
         final long totalBytes = getTotalBytes(filesToUpload);
         long uploadedBytes = 0;

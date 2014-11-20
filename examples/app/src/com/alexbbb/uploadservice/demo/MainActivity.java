@@ -151,7 +151,7 @@ public class MainActivity extends Activity {
 
         final UploadRequest request = new UploadRequest(this, UUID.randomUUID().toString(), serverUrlString);
 
-        request.addFileToUpload(fileToUploadPath, paramNameString, "test", ContentType.APPLICATION_OCTET_STREAM);
+        request.addFileToUpload(fileToUploadPath, paramNameString, "mmexport1412304398013.jpg", ContentType.APPLICATION_OCTET_STREAM);
         request.addParameter("mtd", "com.guocui.tty.api.web.FileController.upFilesSimple");
         request.addParameter("memberId", Long.toString(1));
 		request.addParameter("app", "MERCHANT");
