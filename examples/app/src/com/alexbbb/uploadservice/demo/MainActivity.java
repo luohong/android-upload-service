@@ -4,7 +4,9 @@ import java.io.File;
 import java.net.URL;
 import java.util.UUID;
 
+import android.app.Activity;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
@@ -24,7 +26,7 @@ import com.alexbbb.uploadservice.UploadService;
  * @author Alex Gotev
  * 
  */
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends Activity {
 
     private static final String TAG = "AndroidUploadServiceDemo";
 
@@ -56,7 +58,7 @@ public class MainActivity extends ActionBarActivity {
             progressBar.setProgress(0);
 
             String message = "Upload with ID " + uploadId + " is completed: " + serverResponseCode + ", "
-                    + serverResponseMessage;
+                    + serverResponseMessage + ", " + serverResponseContent;
             Log.i(TAG, message);
         }
     };
@@ -137,9 +139,12 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void onUploadButtonClick() {
-        final String serverUrlString = serverUrl.getText().toString();
-        final String fileToUploadPath = fileToUpload.getText().toString();
-        final String paramNameString = parameterName.getText().toString();
+    	String serverUrlString = serverUrl.getText().toString();
+        serverUrlString = "http://120.24.77.231/ebp/cgi/gateway.htm";
+        String fileToUploadPath = fileToUpload.getText().toString();
+        fileToUploadPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/tencent/MicroMsg/WeiXin/mmexport1412304398013.jpg";
+        String paramNameString = parameterName.getText().toString();
+        paramNameString = "file";
 
         if (!userInputIsValid(serverUrlString, fileToUploadPath, paramNameString))
             return;
@@ -147,10 +152,10 @@ public class MainActivity extends ActionBarActivity {
         final UploadRequest request = new UploadRequest(this, UUID.randomUUID().toString(), serverUrlString);
 
         request.addFileToUpload(fileToUploadPath, paramNameString, "test", ContentType.APPLICATION_OCTET_STREAM);
-
-        request.setNotificationConfig(R.drawable.ic_launcher, getString(R.string.app_name),
-                                      getString(R.string.uploading), getString(R.string.upload_success),
-                                      getString(R.string.upload_error), false);
+        request.addParameter("mtd", "com.guocui.tty.api.web.FileController.upFilesSimple");
+        request.addParameter("memberId", Long.toString(1));
+		request.addParameter("app", "MERCHANT");
+		request.addParameter("sign", "123");
 
         try {
             UploadService.startUpload(request);
