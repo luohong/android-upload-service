@@ -50,6 +50,14 @@ class FileToUpload implements Parcelable {
     public final InputStream getStream() throws FileNotFoundException {
         return new FileInputStream(file);
     }
+    
+    public final File getFile() {
+        return file;
+    }
+    
+    public final String getFileName() {
+        return fileName;
+    }
 
     public byte[] getMultipartHeader() throws UnsupportedEncodingException {
         StringBuilder builder = new StringBuilder();

@@ -1,6 +1,9 @@
 package com.alexbbb.uploadservice;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,6 +19,7 @@ import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
@@ -178,8 +182,6 @@ public class UploadService extends IntentService {
             String serverResponseContent = readResponseContent(readStream);
 
             broadcastCompleted(uploadId, serverResponseCode, serverResponseMessage, serverResponseContent);
-        } catch(Exception e) {
-            e.printStackTrace();
         } finally {
             closeInputStream(readStream);
             closeOutputStream(requestStream);
@@ -268,7 +270,8 @@ public class UploadService extends IntentService {
             byte[] headerBytes = file.getMultipartHeader();
             requestStream.write(headerBytes, 0, headerBytes.length);
 
-            final InputStream stream = file.getStream();
+            final InputStream stream = compress(file);
+            
             byte[] buffer = new byte[BUFFER_SIZE];
             long bytesRead;
 
@@ -282,6 +285,31 @@ public class UploadService extends IntentService {
                 closeInputStream(stream);
             }
         }
+    }
+    
+    private InputStream compress(FileToUpload file) throws FileNotFoundException {
+        InputStream stream = null;
+        
+        File f = file.getFile();
+        if (f != null) {
+            String filename = f.getAbsolutePath();
+            try {
+                Bitmap bm = ImageResizer.decodeSampledBitmapFromFile(filename, 240, 320);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                bm.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                stream = new ByteArrayInputStream(baos.toByteArray());
+            } catch (OutOfMemoryError e) {
+                e.printStackTrace();
+                System.gc();
+                stream = file.getStream();
+            } catch (Exception e) {
+                e.printStackTrace();
+                stream = file.getStream();
+            }
+        } else {
+            stream = file.getStream();
+        }
+        return stream;
     }
 
     private long getTotalBytes(final ArrayList<FileToUpload> filesToUpload) {
