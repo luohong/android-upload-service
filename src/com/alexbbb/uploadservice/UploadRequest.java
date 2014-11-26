@@ -36,7 +36,7 @@ public class UploadRequest {
     public UploadRequest(final Context context, final String uploadId, final String serverUrl) {
         this.context = context;
         this.uploadId = uploadId;
-        notificationConfig = new UploadNotificationConfig();
+//        notificationConfig = new UploadNotificationConfig();
         url = serverUrl;
         filesToUpload = new ArrayList<FileToUpload>();
         headers = new ArrayList<NameValue>();

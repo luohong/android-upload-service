@@ -402,39 +402,47 @@ public class UploadService extends IntentService {
     }
 
     private void createNotification() {
-        notification.setContentTitle(notificationConfig.getTitle()).setContentText(notificationConfig.getMessage())
-                .setContentIntent(PendingIntent.getBroadcast(this, 0, new Intent(), PendingIntent.FLAG_UPDATE_CURRENT))
-                .setSmallIcon(notificationConfig.getIconResourceID()).setProgress(100, 0, true).setOngoing(true);
-
-        startForeground(UPLOAD_NOTIFICATION_ID, notification.build());
+        if (notificationConfig != null) {
+            notification.setContentTitle(notificationConfig.getTitle()).setContentText(notificationConfig.getMessage())
+                    .setContentIntent(PendingIntent.getBroadcast(this, 0, new Intent(), PendingIntent.FLAG_UPDATE_CURRENT))
+                    .setSmallIcon(notificationConfig.getIconResourceID()).setProgress(100, 0, true).setOngoing(true);
+    
+            startForeground(UPLOAD_NOTIFICATION_ID, notification.build());
+        }
     }
 
     private void updateNotificationProgress(final int progress) {
-        notification.setContentTitle(notificationConfig.getTitle()).setContentText(notificationConfig.getMessage())
-                .setSmallIcon(notificationConfig.getIconResourceID()).setProgress(100, progress, false)
-                .setOngoing(true);
-
-        startForeground(UPLOAD_NOTIFICATION_ID, notification.build());
+        if (notificationConfig != null) {
+            notification.setContentTitle(notificationConfig.getTitle()).setContentText(notificationConfig.getMessage())
+                    .setSmallIcon(notificationConfig.getIconResourceID()).setProgress(100, progress, false)
+                    .setOngoing(true);
+    
+            startForeground(UPLOAD_NOTIFICATION_ID, notification.build());
+        }
     }
 
     private void updateNotificationCompleted() {
-        stopForeground(notificationConfig.isAutoClearOnSuccess());
-
-        if (!notificationConfig.isAutoClearOnSuccess()) {
-            notification.setContentTitle(notificationConfig.getTitle())
-                    .setContentText(notificationConfig.getCompleted())
-                    .setSmallIcon(notificationConfig.getIconResourceID()).setProgress(0, 0, false).setOngoing(false);
-
-            notificationManager.notify(UPLOAD_NOTIFICATION_ID_DONE, notification.build());
+        if (notificationConfig != null) {
+            stopForeground(notificationConfig.isAutoClearOnSuccess());
+    
+            if (!notificationConfig.isAutoClearOnSuccess()) {
+                notification.setContentTitle(notificationConfig.getTitle())
+                        .setContentText(notificationConfig.getCompleted())
+                        .setSmallIcon(notificationConfig.getIconResourceID()).setProgress(0, 0, false).setOngoing(false);
+    
+                notificationManager.notify(UPLOAD_NOTIFICATION_ID_DONE, notification.build());
+            }
         }
     }
 
     private void updateNotificationError() {
-        stopForeground(false);
-
-        notification.setContentTitle(notificationConfig.getTitle()).setContentText(notificationConfig.getError())
-                .setSmallIcon(notificationConfig.getIconResourceID()).setProgress(0, 0, false).setOngoing(false);
-
-        notificationManager.notify(UPLOAD_NOTIFICATION_ID_DONE, notification.build());
+        if (notificationConfig != null) {
+            stopForeground(false);
+    
+            notification.setContentTitle(notificationConfig.getTitle()).setContentText(notificationConfig.getError())
+                    .setSmallIcon(notificationConfig.getIconResourceID()).setProgress(0, 0, false).setOngoing(false);
+    
+            notificationManager.notify(UPLOAD_NOTIFICATION_ID_DONE, notification.build());
+        }
     }
 }
